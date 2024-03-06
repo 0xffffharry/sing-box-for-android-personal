@@ -9,6 +9,7 @@ import android.os.IBinder
 import io.nekohasekai.libbox.TunOptions
 import io.nekohasekai.sfa.database.Settings
 import io.nekohasekai.sfa.ktx.toIpPrefix
+import io.nekohasekai.sfa.ktx.toList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -31,6 +32,7 @@ class VPNService : VpnService(), PlatformInterfaceWrapper {
         }
         return service.onBind(intent)
     }
+
     override fun onDestroy() {
         service.onDestroy()
     }
@@ -96,14 +98,14 @@ class VPNService : VpnService(), PlatformInterfaceWrapper {
                 }
 
                 val inet4RouteExcludeAddress = options.inet4RouteExcludeAddress
-                    while (inet4RouteExcludeAddress.hasNext()) {
-                        builder.excludeRoute(inet4RouteExcludeAddress.next().toIpPrefix())
-                    }
+                while (inet4RouteExcludeAddress.hasNext()) {
+                    builder.excludeRoute(inet4RouteExcludeAddress.next().toIpPrefix())
+                }
 
                 val inet6RouteExcludeAddress = options.inet6RouteExcludeAddress
-                    while (inet6RouteExcludeAddress.hasNext()) {
-                        builder.excludeRoute(inet6RouteExcludeAddress.next().toIpPrefix())
-                    }
+                while (inet6RouteExcludeAddress.hasNext()) {
+                    builder.excludeRoute(inet6RouteExcludeAddress.next().toIpPrefix())
+                }
             } else {
                 val inet4RouteAddress = options.inet4RouteRange
                 if (inet4RouteAddress.hasNext()) {
@@ -168,7 +170,9 @@ class VPNService : VpnService(), PlatformInterfaceWrapper {
             systemProxyEnabled = Settings.systemProxyEnabled
             if (systemProxyEnabled) builder.setHttpProxy(
                 ProxyInfo.buildDirectProxy(
-                    options.httpProxyServer, options.httpProxyServerPort
+                    options.httpProxyServer,
+                    options.httpProxyServerPort,
+                    options.httpProxyBypassDomain.toList()
                 )
             )
         } else {
